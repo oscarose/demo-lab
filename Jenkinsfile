@@ -5,6 +5,7 @@ pipeline {
     parameters {
         choice(name: 'target_environment', choices: ['qa', 'dev', 'stage'], description: 'cft target Environment',)
         choice(name:'state', choices: ['present', 'absent'], description: 'cft build or teardown condition',)
+        choice(name:'aws_region', choices: ['us-east-1', 'us-west-2'], description: 'aws region to deploy CFT to',)
         string(name: 'stack_name', defaultValue: '', description: 'cft stackname',)
     }
     stages {

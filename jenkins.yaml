@@ -12,7 +12,7 @@
       aws_secret_key: "{{ aws_secret_key }}"
       stack_name: "{{ stack_name }}"
       state: "{{ state }}"
-      #region: "{{ aws_region }}"
+      region: "{{ aws_region }}"
       #disable_rollback: true
       template: "demoapp.yaml"
       template_parameters:
@@ -25,7 +25,7 @@
       aws_secret_key: "{{ aws_secret_key }}"
       stack_name: "{{ stack_name }}"
       state: "{{ state }}"
-      #region: "{{ aws_region }}"
+      region: "{{ aws_region }}"
       #disable_rollback: true
       template: "demoapp.yaml"
       template_parameters:
