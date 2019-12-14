@@ -20,7 +20,7 @@ pipeline {
                 expression { params.target_environment == 'qa' }
              }
              steps {
-                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_id', accessKeyVariable: 'aws_access_key', secretKeyVariable: 'aws_secret_key']]){
+                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws', accessKeyVariable: 'aws_access_key', secretKeyVariable: 'aws_secret_key']]){
                      sh """
                      ansible-playbook  --extra-vars "ansible_python_interpreter=/bin/python stack_name=${stack_name} state=${state} Environment=${target_environment}" ${WORKSPACE}/jenkins.yaml
                      """
@@ -32,7 +32,7 @@ pipeline {
                 expression { params.target_environment == 'dev' }
              }
              steps {
-                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_id', accessKeyVariable: 'aws_access_key', secretKeyVariable: 'aws_secret_key']]){
+                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws', accessKeyVariable: 'aws_access_key', secretKeyVariable: 'aws_secret_key']]){
                      sh """
                      ansible-playbook  --extra-vars "ansible_python_interpreter=/bin/python stack_name=${stack_name} state=${state} Environment=${target_environment}" ${WORKSPACE}/jenkins.yaml
                      """
