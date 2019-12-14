@@ -1,0 +1,215 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Felicia Cornelius demo'
+
+Metadata:
+  TemplateAuthor: "Chief Divine"
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Main Parameters"
+        Parameters:
+          - "Environment"
+          - "StackName"
+          - "AmiId"
+          - "IamRole"
+          - "KeyPair"
+          - "InstanceType"
+
+Parameters:
+  Environment:
+    Type: String
+    Default: "qa"
+    AllowedValues: [qa, dev]
+  StackName:
+    Type: String
+    Default: "myboydemo"
+  AmiId:
+    Type: String
+    Default: "ami-00eb20669e0990cb4"
+    #AllowedValues: [ami-00eb20669e0990cb4, ami-0394fe9914b475c53]
+  IamRole:
+    Type: String
+    Default: "ec2-s3-role"
+  KeyPair:
+    Type: String
+    Default: "docker"
+  InstanceType:
+    Type: String
+    Default: "t2.micro"
+
+Mappings:
+  environment:
+    qa:
+      VpcId: vpc-3407ba4c
+      VPCSubnet1: subnet-445ba919
+      VPCSubnet2: subnet-46aa3b22
+      HostedZone: oscarose-ogba.com.
+      AllocatedStorage: 20
+      DBInstanceClass: db.m4.large
+      DBName: KCDL001
+      Engine: oracle-se
+      EngineVersion: 11.2.0.4.v22  
+      DbMasterUsername: master
+      DbMasterUserPassword: Key-Key-hash-3030-4040
+      Port: 1521
+
+    dev:
+      VpcId: vpc-012636828253e25b2
+      VPCSubnet1: subnet-083abae47158e843b
+      VPCSubnet2: subnet-0f22c654f6dfe0948
+      HostedZone: oscarose-ogba.com.
+      AllocatedStorage: 20
+      DBInstanceClass: db.m4.large
+      DBName: ZCDL002
+      Engine: oracle-se
+      EngineVersion: 11.2.0.4.v22  
+      DbMasterUsername: master
+      DbMasterUserPassword: Key-Key-hash-2020-3030
+      Port: 1525
+
+Resources:
+  Port220SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Cloud demo SG
+      GroupName: wisdom-22
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: cloudapp
+        - Key: Team
+          Value: CloudTeam
+      VpcId: !FindInMap [environment, !Ref "Environment", VpcId]
+
+  Port800SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Cloud demo SG
+      GroupName: wisdom-80
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: cloudapp
+        - Key: Team
+          Value: CloudTeam
+      VpcId: !FindInMap [environment, !Ref "Environment", VpcId]
+
+  SG1521:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Cloud demo SG
+      GroupName: rds-1521
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 1521
+        ToPort: 1521
+        CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: cloudapp
+        - Key: Team
+          Value: CloudTeam
+      VpcId: !FindInMap [environment, !Ref "Environment", VpcId]
+
+  SG1525:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Cloud demo SG
+      GroupName: rds-1525
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 1525
+        ToPort: 1525
+        CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: cloudapp
+        - Key: Team
+          Value: CloudTeam
+      VpcId: !FindInMap [environment, !Ref "Environment", VpcId]
+
+  WebAppEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref KeyPair
+      ImageId: !Ref AmiId
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref IamRole
+      SubnetId: !FindInMap [environment, !Ref "Environment", VPCSubnet1]
+      Tags:
+        - Key: "Name"
+          Value: "WebApp"
+        - Key: "Team"
+          Value: "Cloud-Team"
+      SecurityGroupIds: 
+        - !Ref Port220SecurityGroup
+        - !Ref Port800SecurityGroup
+      UserData:
+        Fn::Base64: |
+           #!/bin/bash
+           yum install httpd -y
+           echo "<head><h1>I am a solid cloud engineer</h1></head>" >> /var/www/html/index.html
+           service httpd start
+
+  WebDBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: !FindInMap [environment, !Ref "Environment", AllocatedStorage]
+      AllowMajorVersionUpgrade: false
+      AutoMinorVersionUpgrade: true
+      BackupRetentionPeriod: 21
+      DBInstanceClass: !FindInMap [environment, !Ref "Environment", DBInstanceClass]
+      DBInstanceIdentifier: !Join ["-", ["rds", !Ref "Environment", !Ref "AWS::StackName"]]
+      DBName: !FindInMap [environment, !Ref "Environment", DBName]
+      Engine: !FindInMap [environment, !Ref "Environment", Engine]
+      EngineVersion: !FindInMap [environment, !Ref "Environment", EngineVersion]  
+      LicenseModel: bring-your-own-license
+      MasterUsername: !FindInMap [environment, !Ref "Environment", DbMasterUsername]
+      MasterUserPassword: !FindInMap [environment, !Ref "Environment", DbMasterUserPassword]
+      MultiAZ: false
+      Port: !FindInMap [environment, !Ref "Environment", Port]
+      PreferredBackupWindow: "00:00-00:30"  # UTC, 1900-1930PM EST
+      PreferredMaintenanceWindow: "Sun:05:00-Sun:05:30"  # UTC, Sundays 0000-0030 EST
+      PubliclyAccessible: yes
+      StorageEncrypted: true
+      StorageType: gp2
+      Tags:
+        - Key: Name
+          Value: Team-Rds
+        - Key: Team
+          Value: Cloud
+        - Key: Application
+          Value: Webapp
+      VPCSecurityGroups:
+        - !Ref SG1521
+        - !Ref SG1525
+
+  WebAppRoute53RecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !FindInMap [environment, !Ref "Environment", HostedZone]
+      Name: !Join [".", [!Ref "Environment" , "oscarose-ogba" , "com"]]
+      Type: A
+      TTL: 900
+      ResourceRecords:
+      - Fn::GetAtt: WebAppEC2Instance.PublicIp
+
+  RDSRoute53RecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !FindInMap [environment, !Ref "Environment", HostedZone]
+      Name: !Join [".", ["rds" , "oscarose-ogba" , "com"]]
+      Type: CNAME
+      TTL: 900
+      ResourceRecords:
+      - Fn::GetAtt: WebDBInstance.Endpoint.Address
+
