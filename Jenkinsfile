@@ -23,7 +23,7 @@ pipeline {
              steps {
                  withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws', accessKeyVariable: 'aws_access_key', secretKeyVariable: 'aws_secret_key']]){
                      sh """
-                     ansible-playbook  --extra-vars "aws_secret_key=$aws_secret_key aws_access_key=$aws_access_key ansible_python_interpreter=/bin/python stack_name=${stack_name} state=${state} Environment=${target_environment}" ${WORKSPACE}/jenkins.yaml
+                     ansible-playbook  --extra-vars "aws_region=${aws_region} aws_secret_key=$aws_secret_key aws_access_key=$aws_access_key ansible_python_interpreter=/bin/python stack_name=${stack_name} state=${state} Environment=${target_environment}" ${WORKSPACE}/jenkins.yaml
                      """
                  }
              }
@@ -35,7 +35,7 @@ pipeline {
              steps {
                  withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws', accessKeyVariable: 'aws_access_key', secretKeyVariable: 'aws_secret_key']]){
                      sh """
-                     ansible-playbook  --extra-vars "aws_secret_key=$aws_secret_key aws_access_key=$aws_access_key ansible_python_interpreter=/bin/python stack_name=${stack_name} state=${state} Environment=${target_environment}" ${WORKSPACE}/jenkins.yaml
+                     ansible-playbook  --extra-vars "aws_region=${aws_region} aws_secret_key=$aws_secret_key aws_access_key=$aws_access_key ansible_python_interpreter=/bin/python stack_name=${stack_name} state=${state} Environment=${target_environment}" ${WORKSPACE}/jenkins.yaml
                      """
                  }
              }
