@@ -73,7 +73,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Cloud demo SG
-      GroupName: wisdom-22
+      GroupName: wisdom-220
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22
@@ -90,7 +90,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Cloud demo SG
-      GroupName: wisdom-80
+      GroupName: wisdom-800
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 80
